@@ -1,6 +1,6 @@
 services:
   main:
-    build: .
+    image: ghcr.io/yufushiro/furoskey-birdwatch:latest
     restart: always
     security_opt:
       - seccomp=unconfined

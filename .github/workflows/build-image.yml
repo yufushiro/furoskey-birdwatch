@@ -1,0 +1,38 @@
+name: Publish Container image
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build_image:
+    name: Push container image to GitHub Packages
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/yufushiro/furoskey-birdwatch
+          flavor: |
+            latest=true
+          tags: |
+            type=sha,prefix=sha-{{date 'YYYYMMDD' tz='Asia/Tokyo'}}-
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build container image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
