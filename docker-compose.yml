@@ -1,0 +1,8 @@
+services:
+  main:
+    build: .
+    restart: always
+    security_opt:
+      - seccomp=unconfined
+    volumes:
+      - ./config.mts:/app/config.mts:ro

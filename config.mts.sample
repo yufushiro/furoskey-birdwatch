@@ -1,0 +1,64 @@
+import type { Config } from "./src/load_config.mts";
+
+export default {
+  "pushService": {
+    "uaid": "77ee****************************",
+    "uaPrivateKeyJWK": {
+      "crv": "P-256",
+      "d": "KVIi***************************************",
+      "ext": true,
+      "key_ops": ["deriveBits"],
+      "kty": "EC",
+      "x": "FpJ4***************************************",
+      "y": "Osgq***************************************",
+    },
+    "uaPublicKeyBase64":
+      "BBaSeNwh********************************************************************************",
+    "authSecretBase64": "AdvM********************",
+  },
+  "misskey": {
+    "serverUrl": "https://misskey.example.com/",
+    "accessToken": "2NIf****************************",
+    "clientUserAgent": "furoskey-birdwatch/1.0",
+  },
+  "twitter": {
+    "targetScreenName": ["onsen_musume_jp"],
+  },
+} satisfies Config;
+
+/*
+
+pushService の設定値の取得方法:
+
+ 1. Firefox を新規プロファイルで起動する（普段使いのプロファイルを使い回さないこと）
+ 2. about:config から以下の設定を行う
+    dom.push.debug = true
+    dom.push.logLevel = debug
+ 3. Twitter の設定ページから Push 通知を有効化する
+ 4. ブラウザツールボックスを開き、Push 通知を有効化した時に出力された channelID を探す
+ 5. ブラウザツールボックスで以下のコードを実行すると pushService の設定値が JSON で書き出される
+    （channelID の値は前の手順で見つけた ID に置き換えること）
+
+(() => {
+  const channelID = "229a****-****-****-****-************" // ここを書き換えること
+  const request = indexedDB.open("pushapi")
+  request.onsuccess = (x) => {
+    const db = x.target.result
+    const req = db.transaction(["pushapi"])
+      .objectStore("pushapi")
+      .get(channelID)
+    req.onsuccess = (y) => {
+      const record = y.target.result
+      console.log(record)
+      console.log(JSON.stringify({
+        uaid: Services.prefs.getStringPref("dom.push.userAgentID"),
+        uaPrivateKeyJWK: record.p256dhPrivateKey,
+        uaPublicKeyBase64: new Uint8Array(record.p256dhPublicKey).toBase64({alphabet: "base64url"}),
+        authSecretBase64: record.authenticationSecret.toBase64({alphabet: "base64url"}),
+      }))
+      db.close()
+    }
+  }
+})()
+
+*/

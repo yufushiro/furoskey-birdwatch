@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.9",
+    "@std/encoding": "jsr:@std/encoding@^1.0.5"
+  },
+  "tasks": {
+    "start": "deno run --allow-net ./src/main.mts"
+  }
+}
