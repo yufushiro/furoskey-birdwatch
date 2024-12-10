@@ -2,7 +2,5 @@ services:
   main:
     image: ghcr.io/yufushiro/furoskey-birdwatch:latest
     restart: always
-    security_opt:
-      - seccomp=unconfined
     volumes:
       - ./config.mts:/app/config.mts:ro
