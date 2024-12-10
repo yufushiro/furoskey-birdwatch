@@ -20,6 +20,7 @@ export default {
     "serverUrl": "https://misskey.example.com/",
     "accessToken": "2NIf****************************",
     "clientUserAgent": "furoskey-birdwatch/1.0",
+    "visibility": "followers",
   },
   "twitter": {
     "targetScreenName": ["onsen_musume_jp"],

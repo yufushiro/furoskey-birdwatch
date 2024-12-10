@@ -17,6 +17,7 @@ export interface MisskeyConfig {
   serverUrl: string;
   accessToken: string;
   clientUserAgent: string;
+  visibility: "public" | "home" | "followers";
 }
 
 export interface TwitterConfig {

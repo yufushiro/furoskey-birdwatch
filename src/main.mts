@@ -68,7 +68,7 @@ async function processTwitterNotification(
 
   const params = {
     text: `${notification.title} の新着ツイート\n${String(tweetUrl)}`,
-    visibility: "followers",
+    visibility: config.misskey.visibility,
     noExtractMentions: true, // mention っぽいものがあっても Fediverse のユーザー宛ではないので無視
     noExtractEmojis: true, // emoji の shortcode っぽいものがあっても意図したものではないだろうから無視
   } satisfies MisskeyRequestCreateNote;
