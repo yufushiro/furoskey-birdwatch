@@ -1,13 +1,14 @@
-import config from "../config.mts";
 import { ack, hello, isNotificationMessage, ping } from "./push_service.mts";
 import { decryptNotification } from "./decrypt.mts";
-import { loadPushServiceConfig } from "./load_config.mts";
+import { loadConfig, loadPushServiceConfig } from "./load_config.mts";
 import {
   extractTweetUrl,
   getNotificationUrl,
   TwitterNotificationPayload,
 } from "./twitter.mts";
 import { createNote, MisskeyRequestCreateNote } from "./misskey.mts";
+
+const config = await loadConfig("../config.mts");
 
 const {
   uaid,

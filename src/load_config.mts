@@ -24,6 +24,15 @@ export interface TwitterConfig {
   targetScreenName: string[];
 }
 
+export async function loadConfig(configPath: string) {
+  try {
+    return (await import(configPath)).default as Config;
+  } catch (err) {
+    console.error(`Cannot load config: ${String(err)}`);
+    throw err;
+  }
+}
+
 export async function loadPushServiceConfig(config: PushServiceConfig) {
   const uaPrivateKey = await importJWK(config.uaPrivateKeyJWK);
   const uaPublicKeyRaw = decodeBase64Url(config.uaPublicKeyBase64);
