@@ -15,6 +15,12 @@ Mozilla Push Service (push.services.mozilla.com)
 を復号する実装を作る際に参考にしました
 https://blog.nest.moe/posts/receive-latest-tweets-by-web-push/en
 
+## Bot アカウント
+
+このソースコードを使用して現在 Fediverse 上で運用されているアカウントは以下の通りです:
+
+- [@onsen_tweet_bot@onsen-musume.fun](https://onsen-musume.fun/@onsen_tweet_bot) ([詳細](./docs/onsen_tweet_bot.md))
+
 ## 設定ファイルについて
 
 （あとで書く）
