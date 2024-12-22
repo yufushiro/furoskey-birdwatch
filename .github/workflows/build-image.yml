@@ -42,7 +42,7 @@ jobs:
           context: .
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args:
-            - SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
-          outputs:
-            - type=image,push=true,oci-mediatypes=true,compression=zstd,rewrite-timestamp=true
+          build-args: |
+            SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
+          outputs: |
+            type=image,push=true,oci-mediatypes=true,compression=zstd,rewrite-timestamp=true
