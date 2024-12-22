@@ -14,6 +14,11 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
+
+      - name: Generate SOURCE_DATE_EPOCH
+        run: |
+          echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)" >> $GITHUB_ENV
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -23,16 +28,21 @@ jobs:
             latest=true
           tags: |
             type=sha,prefix=sha-{{date 'YYYYMMDD' tz='Asia/Tokyo'}}-
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build container image
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args:
+            - SOURCE_DATE_EPOCH=${{ env.SOURCE_DATE_EPOCH }}
+          outputs:
+            - type=image,push=true,oci-mediatypes=true,compression=zstd,rewrite-timestamp=true

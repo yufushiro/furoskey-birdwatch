@@ -5,6 +5,7 @@ WORKDIR /app
 COPY ./src/ /app/src/
 COPY deno.json deno.lock /app
 
-RUN ["deno", "install"]
+# Reproducible build 非対応のため deno install を実行しない
+#RUN ["deno", "install"]
 
 CMD ["task", "start"]
