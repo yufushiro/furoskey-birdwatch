@@ -53,9 +53,14 @@ export async function importJWK(jwk: JsonWebKey) {
 
   const keyUsages = ["deriveBits", "deriveKey"] satisfies KeyUsage[];
 
+  const jwkModified = {
+    ...jwk,
+    key_ops: keyUsages, // deriveKey で使えるように key_ops を上書き
+  };
+
   return await crypto.subtle.importKey(
     "jwk",
-    jwk,
+    jwkModified,
     algorithm,
     true,
     keyUsages,
