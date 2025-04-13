@@ -3,7 +3,7 @@ import { decryptNotification } from "./decrypt.mts";
 import { loadConfig, loadPushServiceConfig } from "./load_config.mts";
 import { getNotificationUrl, TwitterNotificationPayload } from "./twitter.mts";
 import { createNote, MisskeyRequestCreateNote } from "./misskey.mts";
-import { shouldSendNotification } from "./bot.mts";
+import { buildNotificationText, shouldSendNotification } from "./bot.mts";
 
 const config = await loadConfig("../config.mts");
 
@@ -60,7 +60,7 @@ async function processTwitterNotification(
   }
 
   const params = {
-    text: `${notification.title} の新着ツイート\n${String(tweetUrl)}`,
+    text: buildNotificationText(notification, tweetUrl),
     visibility: config.misskey.visibility,
     noExtractMentions: true, // mention っぽいものがあっても Fediverse のユーザー宛ではないので無視
     noExtractEmojis: true, // emoji の shortcode っぽいものがあっても意図したものではないだろうから無視
