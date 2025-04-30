@@ -34,10 +34,11 @@ pushService の設定値の取得方法:
  1. Firefox を新規プロファイルで起動する（普段使いのプロファイルを使い回さないこと）
  2. about:config から以下の設定を行う
     dom.push.debug = true
-    dom.push.logLevel = debug
- 3. Twitter の設定ページから Push 通知を有効化する
- 4. ブラウザツールボックスを開き、Push 通知を有効化した時に出力された channelID を探す
- 5. ブラウザツールボックスで以下のコードを実行すると pushService の設定値が JSON で書き出される
+    dom.push.loglevel = Debug
+ 3. 開発ツールの設定から「ブラウザとアドオンのデバッガーを有効化」「リモートデバッガーを有効化」のチェックをオンにする
+ 4. Twitter の設定ページから Push 通知を有効化する
+ 5. ブラウザツールボックスを開き、Push 通知を有効化した時に出力された channelID を探す
+ 6. ブラウザツールボックスで以下のコードを実行すると pushService の設定値が JSON で書き出される
     （channelID の値は前の手順で見つけた ID に置き換えること）
 
 (() => {
