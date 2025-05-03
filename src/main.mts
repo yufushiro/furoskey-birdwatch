@@ -32,23 +32,29 @@ setInterval(() => {
 }, 5 * 60 * 1000);
 
 ws.onmessage = async (ev) => {
-  console.log(ev.data);
+  try {
+    console.log(ev.data);
 
-  const data = JSON.parse(ev.data);
-  if (!isNotificationMessage(data)) {
-    return;
+    const data = JSON.parse(ev.data);
+    if (!isNotificationMessage(data)) {
+      return;
+    }
+    const payload = await decryptNotification(
+      data,
+      uaPrivateKey,
+      uaPublicKeyRaw,
+      authSecretRaw,
+    );
+    console.log(payload);
+
+    await processTwitterNotification(payload as TwitterNotificationPayload);
+
+    ws.send(ack({ channelID: data.channelID, version: data.version }));
+  } catch (err: unknown) {
+    console.error(`[err] ${String(err)}`);
+    console.error(err);
+    // ack を送ってないので再接続時に再送されるはず
   }
-  const payload = await decryptNotification(
-    data,
-    uaPrivateKey,
-    uaPublicKeyRaw,
-    authSecretRaw,
-  );
-  console.log(payload);
-
-  await processTwitterNotification(payload as TwitterNotificationPayload);
-
-  ws.send(ack({ channelID: data.channelID, version: data.version }));
 };
 
 async function processTwitterNotification(
@@ -70,5 +76,6 @@ async function processTwitterNotification(
     await createNote(config.misskey, params);
   } catch (err: unknown) {
     console.warn(`[warn] Failed to create note: ${String(err)}`);
+    throw err;
   }
 }
