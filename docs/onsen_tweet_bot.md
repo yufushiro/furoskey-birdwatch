@@ -24,7 +24,7 @@ Twitter から特定のアカウントの新着ツイートを検知して、ツ
 
 Bot のスクリプトに関しては、ゆふしろ ([@yufushiro@m.yufushiro.dev](https://m.yufushiro.dev/@yufushiro)) が開発および運用を行っています
 
-ソースコードについては GitHub の [yufushiro/furoskey-birdwatch](https://github.com/yufushiro/furoskey-birdwatch) にて公開しているものと同一のものを使用しています
+ソースコードについては GitHub の [yufushiro/furoskey-birdwatch](https://github.com/yufushiro/furoskey-birdwatch/tree/main) の main ブランチで公開しているものと同一のものを使用しています
 
 ## 運用方針
 
