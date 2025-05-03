@@ -24,7 +24,7 @@ Twitter から特定のアカウントの新着ツイートを検知して、ツ
 
 Bot のスクリプトに関しては、ゆふしろ ([@yufushiro@m.yufushiro.dev](https://m.yufushiro.dev/@yufushiro)) が開発および運用を行っています
 
-ソースコードについては GitHub の [yufushiro/furoskey-birdwatch](https://github.com/yufushiro/furoskey-birdwatch) にて公開しているものと同一のものを使用しています
+ソースコードについては GitHub の [yufushiro/furoskey-birdwatch](https://github.com/yufushiro/furoskey-birdwatch/tree/main) の main ブランチで公開しているものと同一のものを使用しています
 
 ## 運用方針
 
@@ -57,6 +57,10 @@ Bot のスクリプトに関しては、ゆふしろ ([@yufushiro@m.yufushiro.de
 
 ## 沿革
 
+- 2025/5/1
+    - キャラクター名のハッシュタグを本文に付加するように変更
+- 2024/12/18
+    - 運用方針のドキュメントを公開
 - 2024/12/11
     - 本運用を開始
     - ノートの公開範囲を「ホーム」に変更
