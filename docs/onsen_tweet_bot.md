@@ -6,7 +6,7 @@
 
 - [@onsen_tweet_bot@onsen-musume.fun](https://onsen-musume.fun/@onsen_tweet_bot)
 
-なお、ふろすきー (onsen-musume.fun) の現行の[利用規約](https://cryo.jp/misskey/onsen/tos.php)では Bot の運用が禁止されていますが、当 Bot についてはサーバー管理者の原木しいたけ氏 ([@cryo@onsen-musume.fun](https://onsen-musume.fun/@cryo)) から個別の許可を得た上で運用に当たっています
+なお、アカウント開設当時のふろすきー (onsen-musume.fun) の[利用規約](https://cryo.jp/misskey/onsen/tos.php)では Bot の運用が禁止されていましたが、当 Bot についてはサーバー管理者の原木しいたけ氏 ([@cryo@onsen-musume.fun](https://onsen-musume.fun/@cryo)) から個別の許可を得た上で運用に当たっています
 
 ## 仕様
 
