@@ -1,7 +1,12 @@
 import { ack, hello, isNotificationMessage, ping } from "./push_service.mts";
 import { decryptNotification } from "./decrypt.mts";
 import { loadConfig, loadPushServiceConfig } from "./load_config.mts";
-import { getNotificationUrl, TwitterNotificationPayload } from "./twitter.mts";
+import {
+  extractTweetUrl,
+  fetchTweetFullTextByStatusId,
+  getNotificationUrl,
+  TwitterNotificationPayload,
+} from "./twitter.mts";
 import { createNote, MisskeyRequestCreateNote } from "./misskey.mts";
 import { buildNotificationText, shouldSendNotification } from "./bot.mts";
 
@@ -65,6 +70,12 @@ async function processTwitterNotification(
     return;
   }
 
+  const fullText = await tryFetchTweetFullText(tweetUrl);
+  if (fullText) {
+    // 省略されていないツイート本文が取得できたら body を上書きする
+    notification.data.body = fullText;
+  }
+
   const params = {
     text: buildNotificationText(notification, tweetUrl),
     visibility: config.misskey.visibility,
@@ -77,5 +88,21 @@ async function processTwitterNotification(
   } catch (err: unknown) {
     console.warn(`[warn] Failed to create note: ${String(err)}`);
     throw err;
+  }
+}
+
+async function tryFetchTweetFullText(
+  tweetUrl: URL,
+): Promise<string | undefined> {
+  const { tweetId } = extractTweetUrl(tweetUrl);
+  if (!tweetId) {
+    return undefined;
+  }
+  try {
+    return await fetchTweetFullTextByStatusId(fetch, tweetId);
+  } catch (err: unknown) {
+    console.warn("[warn] Failed to fetch tweet full text");
+    console.warn(err);
+    return undefined;
   }
 }
