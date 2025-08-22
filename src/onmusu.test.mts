@@ -16,3 +16,15 @@ Deno.test("extractOnmusuName: text contains duplicated names", () => {
     ["草津結衣奈"],
   );
 });
+
+Deno.test("extractOnmusuName: text contains space-separated names", () => {
+  // スペースで区切られた名前が含まれている場合も正しく抽出できる
+  assertEquals(
+    extractOnmusuName("草津 結衣奈"),
+    ["草津結衣奈"],
+  );
+  assertEquals(
+    extractOnmusuName("草津　結衣奈"),
+    ["草津結衣奈"],
+  );
+});
