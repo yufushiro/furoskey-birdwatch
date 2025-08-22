@@ -138,5 +138,6 @@ const onmusuCharacterList: string[] = [
 ];
 
 export function extractOnmusuName(text: string): string[] {
-  return onmusuCharacterList.filter((name) => text.includes(name));
+  const searchableText = text.replace(/\s/gu, ""); // Remove spaces and full-width spaces
+  return onmusuCharacterList.filter((name) => searchableText.includes(name));
 }
