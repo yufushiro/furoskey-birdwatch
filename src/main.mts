@@ -73,7 +73,7 @@ async function processTwitterNotification(
   const fullText = await tryFetchTweetFullText(tweetUrl);
   if (fullText) {
     // 省略されていないツイート本文が取得できたら body を上書きする
-    notification.data.body = fullText;
+    notification.body = fullText;
   }
 
   const params = {
