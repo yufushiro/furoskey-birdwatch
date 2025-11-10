@@ -1,11 +1,11 @@
-import { decodeBase64Url } from "jsr:@std/encoding";
+import { decodeBase64Url } from "@std/encoding";
 import { NotificationMessage } from "./push_service.mts";
 
 export async function decryptNotification(
   data: NotificationMessage,
   uaPrivateKey: CryptoKey,
   uaPublicKeyRaw: Uint8Array,
-  authSecretRaw: Uint8Array,
+  authSecretRaw: Uint8Array<ArrayBuffer>,
 ) {
   const { encoding } = data.headers;
   if (encoding !== "aesgcm") {
@@ -17,7 +17,7 @@ export async function decryptNotification(
   const cryptoKey = getEncryptionParams(data.headers.crypto_key);
   const encryption = getEncryptionParams(data.headers.encryption);
   const asPublicKeyBase64 = cryptoKey.get("dh")!;
-  const asPublicKeyRaw = decodeBase64Url(asPublicKeyBase64);
+  const asPublicKeyRaw = decodeBase64Url(asPublicKeyBase64).slice();
   const asPublicKey = await crypto.subtle.importKey(
     "raw",
     asPublicKeyRaw,
@@ -26,7 +26,7 @@ export async function decryptNotification(
     [],
   );
   const saltBase64 = encryption.get("salt")!;
-  const salt = decodeBase64Url(saltBase64);
+  const salt = decodeBase64Url(saltBase64).slice();
   const context = concatBuffer(
     new TextEncoder().encode("P-256\0"),
     new Uint8Array([0, 0x41]),
@@ -58,7 +58,7 @@ export async function decryptNotification(
     (await hmacSHA256(prk, concatBuffer(nonceInfo, new Uint8Array([0x01]))))
       .slice(0, 12);
 
-  const content = decodeBase64Url(data.data);
+  const content = decodeBase64Url(data.data).slice();
   const { data: decryptedData } = await decrypt(
     nonce,
     cek,
@@ -88,7 +88,10 @@ const ecdh = async (publicKey: CryptoKey, privateKey: CryptoKey) => {
   return new Uint8Array(ecdhSecret);
 };
 
-const hmacSHA256 = async (key: Uint8Array, data: Uint8Array) => {
+const hmacSHA256 = async (
+  key: Uint8Array<ArrayBuffer>,
+  data: Uint8Array<ArrayBuffer>,
+) => {
   const keyData = await crypto.subtle.importKey(
     "raw",
     key,
@@ -116,7 +119,7 @@ function getEncryptionParams(valueStr: string) {
   return new Map(pairs);
 }
 
-const getNonce = (nonce: Uint8Array, seq: number) => {
+const getNonce = (nonce: Uint8Array<ArrayBuffer>, seq: number) => {
   if (seq > 0) {
     nonce = new Uint8Array(nonce);
     return nonce.map((byte, index) => {
@@ -130,17 +133,17 @@ const getNonce = (nonce: Uint8Array, seq: number) => {
   return nonce;
 };
 
-const splitData = (data: Uint8Array, size: number) => {
-  const result: Uint8Array[] = [];
+const splitData = (data: Uint8Array<ArrayBuffer>, size: number) => {
+  const result: Uint8Array<ArrayBuffer>[] = [];
   for (let i = 0; i < data.byteLength; i += size) {
     result.push(data.slice(i, i + size));
   }
   return result;
 };
 const decrypt = async (
-  nonce: Uint8Array,
-  contentEncryptionKey: Uint8Array,
-  content: Uint8Array,
+  nonce: Uint8Array<ArrayBuffer>,
+  contentEncryptionKey: Uint8Array<ArrayBuffer>,
+  content: Uint8Array<ArrayBuffer>,
   rs: number = 0,
   encoding = "aesgcm",
 ) => {

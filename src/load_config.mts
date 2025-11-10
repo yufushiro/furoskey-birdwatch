@@ -36,7 +36,7 @@ export async function loadConfig(configPath: string) {
 export async function loadPushServiceConfig(config: PushServiceConfig) {
   const uaPrivateKey = await importJWK(config.uaPrivateKeyJWK);
   const uaPublicKeyRaw = decodeBase64Url(config.uaPublicKeyBase64);
-  const authSecretRaw = decodeBase64Url(config.authSecretBase64);
+  const authSecretRaw = decodeBase64Url(config.authSecretBase64).slice();
   return {
     uaid: config.uaid,
     uaPrivateKey,
