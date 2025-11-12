@@ -30,11 +30,16 @@ export function extractTweetUrl(url: URL) {
   };
 }
 
-/** Twitter の statusId からツイート本文を取得する */
-export async function fetchTweetFullTextByStatusId(
+export interface TwitterResponse {
+  // deno-lint-ignore no-explicit-any
+  data: any;
+}
+
+/** Twitter の tweetId からツイートを取得する */
+export async function fetchTweetById(
   fetch: typeof globalThis.fetch,
-  statusId: string,
-): Promise<string> {
+  tweetId: string,
+): Promise<TwitterResponse> {
   // guest_tokenを取得（レスポンス本文から "gt=..." を抽出）
   const guestTokenRes = await fetch("https://twitter.com/");
   const body = await guestTokenRes.text();
@@ -48,7 +53,7 @@ export async function fetchTweetFullTextByStatusId(
   const endpoint =
     "https://api.x.com/graphql/qxWQxcMLiTPcavz9Qy5hwQ/TweetResultByRestId";
   const variables = {
-    "tweetId": statusId,
+    "tweetId": tweetId,
     "withCommunity": false,
     "includePromotedContent": false,
     "withVoice": false,
@@ -112,9 +117,21 @@ export async function fetchTweetFullTextByStatusId(
     throw new Error(`Twitter API error: ${res.status} ${res.statusText}`);
   }
 
-  const responseJson = await res.json();
+  const responseJson: unknown = await res.json();
+  if (
+    !(responseJson !== null && typeof responseJson === "object" &&
+      "data" in responseJson)
+  ) {
+    throw new Error(`Twitter API error: InvalidResponse ${res.statusText}`);
+  }
 
-  // ツイート本文の抽出
+  return responseJson;
+}
+
+/** Twitter のレスポンスからツイート本文を取得する */
+export function getTweetFullText(
+  responseJson: TwitterResponse,
+): string {
   try {
     const noteTweetText = responseJson.data?.tweetResult?.result?.note_tweet
       ?.note_tweet_results?.result?.text;
@@ -129,4 +146,15 @@ export async function fetchTweetFullTextByStatusId(
   } catch (err) {
     throw new Error("Failed to parse tweet text: " + String(err));
   }
+}
+
+/** 過去のツイートを編集するツイートであるかどうかを判定する */
+export function isEditTweet(
+  responseJson: TwitterResponse,
+): boolean {
+  const tweetId: string | undefined = responseJson.data?.tweetResult
+    ?.result?.rest_id;
+  const initialTweetId: string | undefined = responseJson.data
+    ?.tweetResult?.result?.edit_control?.initial_tweet_id;
+  return initialTweetId !== undefined && initialTweetId !== tweetId;
 }
