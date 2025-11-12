@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { fetchTweetById, getTweetFullText } from "./twitter.mts";
+import { fetchTweetById, getTweetFullText, isEditTweet } from "./twitter.mts";
 
 Deno.test("fetchTweetById: fetch tweet", async () => {
   // fetch 関数のモック
@@ -89,4 +89,36 @@ Deno.test("getTweetFullText: get full text from full_text", () => {
     getTweetFullText(responseJson),
     "tweet text (full_text)",
   );
+});
+
+Deno.test("isEditTweet: when tweet is edit tweet", () => {
+  const editTweetResponse = {
+    data: {
+      tweetResult: {
+        result: {
+          rest_id: "1111111111111111112",
+          edit_control: {
+            initial_tweet_id: "1111111111111111111",
+          },
+        },
+      },
+    },
+  };
+  assertEquals(isEditTweet(editTweetResponse), true);
+});
+
+Deno.test("isEditTweet: when tweet is initial tweet", () => {
+  const editTweetResponse = {
+    data: {
+      tweetResult: {
+        result: {
+          rest_id: "1111111111111111111",
+          edit_control: {
+            edit_tweet_ids: ["1111111111111111111", "1111111111111111112"],
+          },
+        },
+      },
+    },
+  };
+  assertEquals(isEditTweet(editTweetResponse), false);
 });

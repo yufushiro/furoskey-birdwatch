@@ -147,3 +147,14 @@ export function getTweetFullText(
     throw new Error("Failed to parse tweet text: " + String(err));
   }
 }
+
+/** 過去のツイートを編集するツイートであるかどうかを判定する */
+export function isEditTweet(
+  responseJson: TwitterResponse,
+): boolean {
+  const tweetId: string | undefined = responseJson.data?.tweetResult
+    ?.result?.rest_id;
+  const initialTweetId: string | undefined = responseJson.data
+    ?.tweetResult?.result?.edit_control?.initial_tweet_id;
+  return initialTweetId !== undefined && initialTweetId !== tweetId;
+}

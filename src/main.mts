@@ -6,6 +6,7 @@ import {
   fetchTweetById,
   getNotificationUrl,
   getTweetFullText,
+  isEditTweet,
   TwitterNotificationPayload,
   TwitterResponse,
 } from "./twitter.mts";
@@ -75,6 +76,10 @@ async function processTwitterNotification(
   // ツイートの詳細を取得する（失敗しても通知は可能）
   const responseJson = await tryFetchTweet(tweetUrl);
   if (responseJson !== undefined) {
+    if (isEditTweet(responseJson)) {
+      // 編集ツイートであれば通知しない
+      return;
+    }
     const fullText = getTweetFullText(responseJson);
     // 省略されていないツイート本文が取得できたら body を上書きする
     notification.body = fullText;
