@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
-import { fetchTweetFullTextByStatusId } from "./twitter.mts";
+import { fetchTweetById, getTweetFullText } from "./twitter.mts";
 
-Deno.test("fetchTweetFullTextByStatusId: fetch full text from note_tweet", async () => {
+Deno.test("fetchTweetById: fetch tweet", async () => {
   // fetch 関数のモック
   const mockFetch: typeof globalThis.fetch = (input, init) => {
     if (typeof input === "string" && input.startsWith("https://twitter.com/")) {
@@ -17,23 +17,13 @@ Deno.test("fetchTweetFullTextByStatusId: fetch full text from note_tweet", async
       const headers = init?.headers as Record<string, string>;
       assertEquals(headers["x-guest-token"], "mocked_guest_token");
 
-      // レスポンスに note_tweet が含まれるパターン
       return Promise.resolve(
         new Response(
           JSON.stringify({
             data: {
               tweetResult: {
                 result: {
-                  note_tweet: {
-                    note_tweet_results: {
-                      result: {
-                        text: "tweet text (note_tweet)",
-                      },
-                    },
-                  },
-                  legacy: {
-                    full_text: "tweet text (full_text)",
-                  },
+                  rest_id: "1234567890123456789",
                 },
               },
             },
@@ -45,51 +35,58 @@ Deno.test("fetchTweetFullTextByStatusId: fetch full text from note_tweet", async
     throw new Error("Unexpected fetch input");
   };
 
+  const responseJson = await fetchTweetById(
+    mockFetch,
+    "1234567890123456789",
+  );
   assertEquals(
-    await fetchTweetFullTextByStatusId(mockFetch, "1234567890123456789"),
+    responseJson.data.tweetResult.result.rest_id,
+    "1234567890123456789",
+  );
+});
+
+Deno.test("getTweetFullText: get full text from note_tweet", () => {
+  // レスポンスに note_tweet が含まれるパターン
+  const responseJson = {
+    data: {
+      tweetResult: {
+        result: {
+          note_tweet: {
+            note_tweet_results: {
+              result: {
+                text: "tweet text (note_tweet)",
+              },
+            },
+          },
+          legacy: {
+            full_text: "tweet text (full_text)",
+          },
+        },
+      },
+    },
+  };
+
+  assertEquals(
+    getTweetFullText(responseJson),
     "tweet text (note_tweet)",
   );
 });
 
-Deno.test("fetchTweetFullTextByStatusId: fetch full text from full_text", async () => {
-  // fetch 関数のモック
-  const mockFetch: typeof globalThis.fetch = (input, init) => {
-    if (typeof input === "string" && input.startsWith("https://twitter.com/")) {
-      // guest_token 取得
-      return Promise.resolve(new Response("gt=mocked_guest_token;"));
-    }
-    if (
-      typeof input === "string" &&
-      input.startsWith("https://api.x.com/graphql/") &&
-      input.includes("TweetResultByRestId")
-    ) {
-      // ツイート取得
-      const headers = init?.headers as Record<string, string>;
-      assertEquals(headers["x-guest-token"], "mocked_guest_token");
-
-      // レスポンスに note_tweet が含まれないパターン
-      return Promise.resolve(
-        new Response(
-          JSON.stringify({
-            data: {
-              tweetResult: {
-                result: {
-                  legacy: {
-                    full_text: "tweet text (full_text)",
-                  },
-                },
-              },
-            },
-          }),
-          { status: 200 },
-        ),
-      );
-    }
-    throw new Error("Unexpected fetch input");
+Deno.test("getTweetFullText: get full text from full_text", () => {
+  const responseJson = {
+    data: {
+      tweetResult: {
+        result: {
+          legacy: {
+            full_text: "tweet text (full_text)",
+          },
+        },
+      },
+    },
   };
 
   assertEquals(
-    await fetchTweetFullTextByStatusId(mockFetch, "1234567890123456789"),
+    getTweetFullText(responseJson),
     "tweet text (full_text)",
   );
 });

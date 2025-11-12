@@ -3,9 +3,11 @@ import { decryptNotification } from "./decrypt.mts";
 import { loadConfig, loadPushServiceConfig } from "./load_config.mts";
 import {
   extractTweetUrl,
-  fetchTweetFullTextByStatusId,
+  fetchTweetById,
   getNotificationUrl,
+  getTweetFullText,
   TwitterNotificationPayload,
+  TwitterResponse,
 } from "./twitter.mts";
 import { createNote, MisskeyRequestCreateNote } from "./misskey.mts";
 import { buildNotificationText, shouldSendNotification } from "./bot.mts";
@@ -70,8 +72,10 @@ async function processTwitterNotification(
     return;
   }
 
-  const fullText = await tryFetchTweetFullText(tweetUrl);
-  if (fullText) {
+  // ツイートの詳細を取得する（失敗しても通知は可能）
+  const responseJson = await tryFetchTweet(tweetUrl);
+  if (responseJson !== undefined) {
+    const fullText = getTweetFullText(responseJson);
     // 省略されていないツイート本文が取得できたら body を上書きする
     notification.body = fullText;
   }
@@ -91,15 +95,15 @@ async function processTwitterNotification(
   }
 }
 
-async function tryFetchTweetFullText(
+async function tryFetchTweet(
   tweetUrl: URL,
-): Promise<string | undefined> {
+): Promise<TwitterResponse | undefined> {
   const { tweetId } = extractTweetUrl(tweetUrl);
   if (!tweetId) {
     return undefined;
   }
   try {
-    return await fetchTweetFullTextByStatusId(fetch, tweetId);
+    return await fetchTweetById(fetch, tweetId);
   } catch (err: unknown) {
     console.warn("[warn] Failed to fetch tweet full text");
     console.warn(err);
