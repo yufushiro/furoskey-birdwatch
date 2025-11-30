@@ -28,3 +28,11 @@ Deno.test("extractOnmusuName: text contains space-separated names", () => {
     ["草津結衣奈"],
   );
 });
+
+Deno.test("extractOnmusuName: name with half-width middle dot", () => {
+  // 名前に半角中点が含まれている場合も正しく抽出できる
+  assertEquals(
+    extractOnmusuName("奏･バーデン･由布院"),
+    ["奏・バーデン・由布院"],
+  );
+});
