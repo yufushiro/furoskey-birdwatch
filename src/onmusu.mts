@@ -142,5 +142,9 @@ export function extractOnmusuName(text: string): string[] {
     .replace(/\s/gu, "") // Remove spaces and full-width spaces
     .replace(/･/gu, "・") // Replace half-width middle dots with full-width
   ;
-  return onmusuCharacterList.filter((name) => searchableText.includes(name));
+  return onmusuCharacterList
+    .map((name) => ({ name, pos: searchableText.indexOf(name) }))
+    .filter(({ pos }) => pos !== -1) // 名前が見つかったものだけ残す
+    .toSorted((a, b) => a.pos - b.pos) // 出現順にソート
+    .map(({ name }) => name);
 }
