@@ -2,10 +2,17 @@ import { assertEquals } from "@std/assert";
 import { extractOnmusuName } from "./onmusu.mts";
 
 Deno.test("extractOnmusuName: text contains multiple names", () => {
-  // 要素の順序は不定なため sort 後の結果で比較する
   assertEquals(
-    extractOnmusuName("鬼怒川日向 玉造彗 別府環綺").sort(),
-    ["鬼怒川日向", "玉造彗", "別府環綺"].sort(),
+    extractOnmusuName("鬼怒川日向 玉造彗 別府環綺"),
+    ["鬼怒川日向", "玉造彗", "別府環綺"],
+  );
+});
+
+Deno.test("extractOnmusuName: names must be in order of appearance", () => {
+  // 複数の名前が含まれる場合、出現順に抽出されること
+  assertEquals(
+    extractOnmusuName("別府環綺 鬼怒川日向 玉造彗"),
+    ["別府環綺", "鬼怒川日向", "玉造彗"],
   );
 });
 
