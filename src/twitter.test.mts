@@ -14,7 +14,7 @@ Deno.test("fetchTweetById: fetch tweet", async () => {
       input.includes("TweetResultByRestId")
     ) {
       // ツイート取得
-      const headers = init?.headers as Record<string, string>;
+      const headers = (init as RequestInit)?.headers as Record<string, string>;
       assertEquals(headers["x-guest-token"], "mocked_guest_token");
 
       return Promise.resolve(
