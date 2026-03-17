@@ -135,6 +135,7 @@ const onmusuCharacterList: string[] = [
   "白子ひまり",
   "蒲郡海詩",
   "輪島かさね",
+  "戸倉上山田杏月",
 ];
 
 export function extractOnmusuName(text: string): string[] {
