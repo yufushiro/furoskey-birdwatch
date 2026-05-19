@@ -21,7 +21,10 @@ export function buildNotificationText(
     String(tweetUrl),
   ];
 
-  const onmusuNames = extractOnmusuName(notification.body);
+  const onmusuNames = extractOnmusuName(notification.body)
+    .slice(0, 9) // ハッシュタグは最大 9 個 (SPRiNGS の人数) とする
+  ;
+
   if (onmusuNames.length > 0) {
     textLines.push(""); // ハッシュタグの前に空行を挟む
     textLines.push(onmusuNames.map((name) => `#${name}`).join(" "));
