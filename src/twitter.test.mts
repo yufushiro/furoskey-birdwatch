@@ -4,9 +4,14 @@ import { fetchTweetById, getTweetFullText, isEditTweet } from "./twitter.mts";
 Deno.test("fetchTweetById: fetch tweet", async () => {
   // fetch 関数のモック
   const mockFetch: typeof globalThis.fetch = (input, init) => {
-    if (typeof input === "string" && input.startsWith("https://twitter.com/")) {
+    if (
+      typeof input === "string" &&
+      input === "https://api.twitter.com/1.1/guest/activate.json"
+    ) {
       // guest_token 取得
-      return Promise.resolve(new Response("gt=mocked_guest_token;"));
+      return Promise.resolve(
+        new Response(JSON.stringify({ guest_token: "mocked_guest_token" })),
+      );
     }
     if (
       typeof input === "string" &&

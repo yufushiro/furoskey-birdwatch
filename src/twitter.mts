@@ -30,6 +30,10 @@ export function extractTweetUrl(url: URL) {
   };
 }
 
+interface GuestTokenResponse {
+  guest_token: string;
+}
+
 export interface TwitterResponse {
   // deno-lint-ignore no-explicit-any
   data: any;
@@ -40,14 +44,28 @@ export async function fetchTweetById(
   fetch: typeof globalThis.fetch,
   tweetId: string,
 ): Promise<TwitterResponse> {
+  const bearerToken = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xn" +
+    "Zz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA";
+
   // guest_tokenを取得（レスポンス本文から "gt=..." を抽出）
-  const guestTokenRes = await fetch("https://twitter.com/");
-  const body = await guestTokenRes.text();
-  const guestTokenMatch = body.match(/gt=([^;]+);/);
-  if (!guestTokenMatch) {
+  const guestTokenRes = await fetch(
+    "https://api.twitter.com/1.1/guest/activate.json",
+    {
+      method: "POST",
+      headers: {
+        "authorization": `Bearer ${bearerToken}`,
+        "content-type": "application/json",
+      },
+    },
+  );
+  if (!guestTokenRes.ok) {
     throw new Error("Failed to get guestToken");
   }
-  const guestToken = guestTokenMatch[1];
+  const body: GuestTokenResponse = await guestTokenRes.json();
+  if (!body.guest_token) {
+    throw new Error("Failed to parse guestToken");
+  }
+  const guestToken = body.guest_token;
 
   // ツイート本文を取得
   const endpoint =
@@ -100,9 +118,6 @@ export async function fetchTweetById(
     features: JSON.stringify(features),
   });
   const url = `${endpoint}?${params.toString()}`;
-
-  const bearerToken = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xn" +
-    "Zz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA";
 
   const res = await fetch(url, {
     method: "GET",
