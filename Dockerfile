@@ -1,5 +1,5 @@
 # syntax=docker.io/docker/dockerfile:1
-FROM docker.io/denoland/deno:distroless-2.1.3
+FROM docker.io/denoland/deno:distroless-2.9.3
 
 WORKDIR /app
 COPY ./src/ /app/src/
