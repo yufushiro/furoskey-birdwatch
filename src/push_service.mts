@@ -19,10 +19,6 @@ export function ack(
   });
 }
 
-export function ping() {
-  return "{}";
-}
-
 export interface NotificationMessage {
   messageType: "notification";
   channelID: string;
