@@ -1,4 +1,4 @@
-import { ack, hello, isNotificationMessage } from "./push_service.mts";
+import { ack, hello, isNotificationMessage, ping } from "./push_service.mts";
 import { decryptNotification } from "./decrypt.mts";
 import { loadConfig, loadPushServiceConfig } from "./load_config.mts";
 import {
@@ -38,6 +38,11 @@ ws.onopen = () => {
   console.log("open");
   ws.send(hello(uaid));
 };
+
+setInterval(() => {
+  console.log("ping");
+  ws.send(ping());
+}, 5 * 60 * 1000);
 
 ws.onmessage = async (ev) => {
   try {
