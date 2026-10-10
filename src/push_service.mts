@@ -61,7 +61,8 @@ export async function connectPushService(
   }, { signal });
 
   socket.addEventListener("error", (ev) => {
-    console.error("WebSocket error", ev);
+    const message = ev instanceof ErrorEvent ? ev.message : String(ev);
+    console.error(`WebSocket error: ${message}`);
   }, { signal });
 
   socket.addEventListener("message", async (ev: MessageEvent<unknown>) => {
