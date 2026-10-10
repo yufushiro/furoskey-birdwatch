@@ -24,8 +24,13 @@ const {
 
 const ws = new WebSocket("wss://push.services.mozilla.com");
 
-ws.onclose = () => {
-  console.log("closed");
+ws.onclose = (ev) => {
+  console.log(
+    "closed: " +
+      `code=${ev.code}, ` +
+      `reason=${ev.reason || "(none)"}, ` +
+      `wasClean=${ev.wasClean}`,
+  );
   Deno.exit(1);
 };
 
