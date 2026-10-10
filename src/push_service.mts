@@ -65,12 +65,16 @@ export async function connectPushService(
     console.error(`WebSocket error: ${message}`);
   }, { signal });
 
+  function filterSecret(text: string) {
+    return text.replace(uaid, "...uaid...");
+  }
+
   socket.addEventListener("message", async (ev: MessageEvent<unknown>) => {
     const { promise, resolve } = Promise.withResolvers<void>();
     inFlightMessages.add(promise);
 
     try {
-      console.log(ev.data);
+      console.log(filterSecret(String(ev.data)));
       if (typeof ev.data !== "string") {
         throw new TypeError("Expected a text WebSocket message");
       }
