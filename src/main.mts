@@ -1,4 +1,8 @@
-import { ack, hello, isNotificationMessage, ping } from "./push_service.mts";
+import {
+  ack,
+  connectPushService,
+  isNotificationMessage,
+} from "./push_service.mts";
 import { decryptNotification } from "./decrypt.mts";
 import { loadConfig, loadPushServiceConfig } from "./load_config.mts";
 import {
@@ -22,53 +26,58 @@ const {
   authSecretRaw,
 } = await loadPushServiceConfig(config.pushService);
 
-const ws = new WebSocket("wss://push.services.mozilla.com");
+const RECONNECT_BASE_DELAY = Temporal.Duration.from({ seconds: 1 });
+const RECONNECT_MAX_DELAY = Temporal.Duration.from({ minutes: 5 });
 
-ws.onclose = (ev) => {
-  console.log(
-    "closed: " +
-      `code=${ev.code}, ` +
-      `reason=${ev.reason || "(none)"}, ` +
-      `wasClean=${ev.wasClean}`,
-  );
-  Deno.exit(1);
-};
+function delay(duration: Temporal.Duration): Promise<void> {
+  const { promise, resolve } = Promise.withResolvers<void>();
+  setTimeout(() => resolve(), duration.total("milliseconds"));
+  return promise;
+}
 
-ws.onopen = () => {
-  console.log("open");
-  ws.send(hello(uaid));
-};
-
-setInterval(() => {
-  console.log("ping");
-  ws.send(ping());
-}, 5 * 60 * 1000);
-
-ws.onmessage = async (ev) => {
+let reconnectAttempt = 0;
+while (true) {
   try {
-    console.log(ev.data);
+    await connectPushService(uaid, async ({ data, send }) => {
+      try {
+        // 接続が確立したら再接続試行回数をリセットする
+        reconnectAttempt = 0;
 
-    const data = JSON.parse(ev.data);
-    if (!isNotificationMessage(data)) {
-      return;
-    }
-    const payload = await decryptNotification(
-      data,
-      uaPrivateKey,
-      uaPublicKeyRaw,
-      authSecretRaw,
-    );
-    console.log(payload);
+        if (!isNotificationMessage(data)) {
+          return;
+        }
 
-    await processTwitterNotification(payload as TwitterNotificationPayload);
+        const payload = await decryptNotification(
+          data,
+          uaPrivateKey,
+          uaPublicKeyRaw,
+          authSecretRaw,
+        );
+        console.log(payload);
 
-    ws.send(ack({ channelID: data.channelID, version: data.version }));
+        await processTwitterNotification(payload as TwitterNotificationPayload);
+
+        send(ack({ channelID: data.channelID, version: data.version }));
+      } catch (err: unknown) {
+        console.error(`[err] Failed to process message: ${String(err)}`);
+        console.error(err);
+        // ack を送ってないので再接続時に再送されるはず
+      }
+    });
   } catch (err: unknown) {
-    console.error(`[err] ${String(err)}`);
-    console.error(err);
-    // ack を送ってないので再接続時に再送されるはず
+    console.error(`[err] Failed to establish WebSocket: ${String(err)}`);
   }
-};
+
+  // 再接続時の待機時間は exponential backoff で増加させる
+  const delayMs = Math.min(
+    RECONNECT_BASE_DELAY.total("milliseconds") * 2 ** reconnectAttempt,
+    RECONNECT_MAX_DELAY.total("milliseconds"),
+  );
+  reconnectAttempt++;
+  console.warn(`[warn] Reconnecting in ${delayMs}ms`);
+
+  await delay(Temporal.Duration.from({ milliseconds: delayMs }));
+}
 
 async function processTwitterNotification(
   notification: TwitterNotificationPayload,
